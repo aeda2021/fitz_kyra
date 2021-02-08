@@ -607,10 +607,10 @@ plot3d <-scatterplot3d(mtcars$wt,mtcars$hp,mtcars$mpg, pch=16, type="p")  # type
 plot3d$plane3d(car_mod2)  # this syntax seems a little weird, but what's it's saying is, add a 3d plane representing the fit of car_mod2, to the existing plot 'plot3d'
 
 # Q: Go back to the question that motivated the analysis and answer it, using the model coefficients (ie, your results) in your answer.
+#Hp and wt both predict mpg, wt has a negative linear relationship with mpg with a slope of -3.8 when hp is held constant,
+#Hp has a negative linear relationship with mpg, with a slope of -0.03 when wt is held constant.
 # remember that once you have more than one predictor variable (multiple regression, ancova, etc), when you 
 #interpret the results for any one variable you need to add 'while holding (the other variable(s)) constant'
-
-
 
 
 ## ANCOVA
@@ -619,7 +619,7 @@ plot3d$plane3d(car_mod2)  # this syntax seems a little weird, but what's it's sa
 # remember ancova is just a linear model with both continuous and categorical variables
 
 # get some data on egg-laying by limpets
-limpet <- read_csv("limpet.csv")  
+limpet <- read_csv("3_limpet.csv")  
 glimpse(limpet)  # just to be clear, 'eggs' is eggs laid per limpet
 
 # first, data picture
@@ -628,16 +628,22 @@ ggplot(limpet, aes(x = DENSITY, y = EGGS, color = SEASON)) +
     scale_color_manual(values = c(spring="green", summer="orange")) +  # this is how you set colors manually in ggplot, if things like this are important to you
     theme_bw()  # this gets rid of the gray excel-like background which some find objectionable
 # Q: what is your prediction about the answer to the ancova question?
+#It appears the mean number of eggs laid by limpets varies with limpet density and season
 
-# in a model like this with a continuous and a categorical variable, ggplot is super handy for eyeballing slopes and intercepts, because it can fit a line through each level of the categorical variable
+# in a model like this with a continuous and a categorical variable, ggplot is super handy for eyeballing slopes and intercepts, 
+#because it can fit a line through each level of the categorical variable
 ggplot(limpet, aes(x = DENSITY, y = EGGS, color = SEASON)) +
     geom_point() +
     scale_color_manual(values = c(spring="green", summer="orange")) +  
     geom_smooth(method = 'lm', se = FALSE) +  # remember geom_smooth fits a loess unless you specify a particular model fit
     theme_bw()
 # Q: use the picture to estimate the slope for each season
-# Q: do you think the effect of density depends on season? that is, do you predict an interaction? explain why or why not
+#-0.05 for spring, -0.06 for summer
+# Q: do you think the effect of density depends on season? that is, do you predict an interaction? explain why or why 
+#seems to be higher number of eggs laid in spring, but not sure that this would be an interaction with density, could just be that 
+#limpets lay more eggs in spring than in summer
 # Q: estimate the intercept(s).  can the intercept be meaningfully interpreted in this model?
+#3.5 for spring, 2.5 for summer; intercepts can give us an idea of how many eggs we'd expect if density isn't a factor
 # some reminders about units
 # units of intercept are units of Y variable
 # units of slope are units of Y variable per unit of continuous X variable
@@ -647,6 +653,7 @@ ggplot(limpet, aes(x = DENSITY, y = EGGS, color = SEASON)) +
 # second, run model
 limpet_mod <- lm(EGGS ~ DENSITY + SEASON + DENSITY*SEASON, data = limpet)
 # Q: how would have R interpreted a model specified as lm(EGGS ~ DENSITY*SEASON, data=limpet)?
+#Eggs as a function of the interaction of density and season
 # look at all the output info R stores for you!!   under environment / data
 # if that felt overwhelming, you can just look at the names of the things that are stored
 names(limpet_mod)
@@ -657,28 +664,40 @@ names(limpet_mod)
 
 # third, check assumptions
 autoplot(limpet_mod)
-# Q: state what assumption you are checking in each plot and what you are looking for. are there any assumptions of ANCOVA that you are not able to check here?
 
+# Q: state what assumption you are checking in each plot and what you are looking for. are there any assumptions of ANCOVA that you are not able to check here?
+#residuals vs. fitted looks okay- points evenly scattered, points generally follow the line in the Normal QQ plot so normality 
+#appears okay, scale-location plot shows points evenly scattered so looks okay, residuals vs. leverage shows most points at low leverage
 # fourth, interpret results
+
 # this gets a bit hairy, for ancova. both summary() and anova() are relevant
 # but don't panic. it's actually an easy model to visualize because it's just two parallel lines
 anova(limpet_mod)
+
 # here is an interpretation of the anova table from the top row down
-# DENSITY: R estimated a joint slope of eggs laid as a function of density for both seasons, and it explained lots of variance, with MS 5.0
+# DENSITY: R estimated a joint slope of eggs laid as a function of density for both seasons, 
+#and it explained lots of variance, with MS 5.0
 # the 'variance explained' is relative to an intercept-only model, which is a flat line at the mean value of eggs laid
 # SEASON: R estimated different intercepts for the two seasons, and that explained some more variance, for a MS of 3.3
-# what the 'variance explained' actually means in this case: R switched from measuring residuals for all data points based on a single fit line,
-# to measuring the residuals of 'summer' data points from the 'summer' line, and residuals of 'spring' data points from the 'spring' line
+# what the 'variance explained' actually means in this case: R switched from measuring residuals for all data points 
+#based on a single fit line,
+# to measuring the residuals of 'summer' data points from the 'summer' line, and residuals of 'spring' data points from the 
+#'spring' line
 # DENSITY:SEASON  R allowed the slopes to vary (the interaction), but doing so didn't explain much; MS 0.01
 # it would be fine to drop the interaction term from the model at this point
 
 summary(limpet_mod)
 # coefficients table: here is where we get our intercept and slope
 # Q: write the model equation for egg production in the spring in y = a + bx form, filling in all coefficients and variable names
-# SEASONsummer estimate is the difference between spring and summer in terms of egg production. in other words, a shift in the intercept
+#y=2.66 - 0.0337x
+# SEASONsummer estimate is the difference between spring and summer in terms of egg production. in other words, 
+#a shift in the intercept
 # Q: write the model equation for egg production in the summer in y = a + bx form, filling in all coefficients and variable names
-# if the interaction mattered (but it doesn't) you could use the DENSITY:SEASONsummer interaction coefficient to flatten the slope for summer by 0.003
-# the bottom line: the model shows that egg production by limpets can be pretty well explained by season and how many other limpets are around: R2 of 0.67, p<0.0001
+#y=1.85 - 0.03
+# if the interaction mattered (but it doesn't) you could use the DENSITY:SEASONsummer interaction coefficient to 
+#flatten the slope for summer by 0.003
+# the bottom line: the model shows that egg production by limpets can be pretty well explained by season and how many other 
+#limpets are around: R2 of 0.67, p<0.0001
 # but in the results table for the various coefficients, R is reporting t tests. why? 
 # a t-test asks if the difference between 2 values is different from zero
 # so, what two values? is the question.
@@ -697,10 +716,17 @@ ggplot(limpet, aes(x = DENSITY, y = EGGS, color = SEASON)) +
     geom_abline(intercept = (coef(limpet_mod)[1]+coef(limpet_mod)[3]), slope = (coef(limpet_mod)[2]), colour="orange") +
     theme_bw()
 # Q: in the geom_abline lines above, explain why the intercept and slope are defined as they are in each case
+#as the interaction of density and season did not show a significant result, the slope is the same in each line, 
+#but the intercept is different, coefficients for the equations come from the estimates of our model
 # hint: look at the Estimate column in your summary() output
 # Q: state your conclusion from this analysis. as always, interpret your results (coefficient values) in terms of their biological meaning
+#Density and season each affect the number of eggs laid, with a negative relationship between density and number of eggs laid with 
+#a statistically significant slope of -0.03. Limpets had higher egg production in the spring than in summer, as shown by a y-intercept
+#of 2.66 eggs for limpets in spring, and a y-intercept of 1.85 eggs for limpets in summer
+
 # some concluding insights about model geometry, aka, visualizing what your models are doing
-# in model geometry in general, the coefficients of categorical variables are intercepts, and the coefficients of numerical (continuous) variables are slopes
+# in model geometry in general, the coefficients of categorical variables are intercepts, 
+#and the coefficients of numerical (continuous) variables are slopes
 # a model with one numeric, one categorical variable is a parallel (or if an interaction, not parallel) lines model
 # a model with two numeric variables is a plane
 # a model with two numeric, one categorical variable is parallel planes
@@ -712,9 +738,11 @@ ggplot(limpet, aes(x = DENSITY, y = EGGS, color = SEASON)) +
 # often in more complex models, variables are 'standardized' to Z scores
 # centering a variable means subtracting the mean from all data points, so that the mean of the 'new' variable is zero
 # standardizing means changing both the mean and the sd - more on that below
-# let's center the hp variable, so that we can interpret the intercept as the mpg of a car of average weight, as opposed to the mpg of a car of weight=0 
-# Q: what do you predict about the intercept, slope, p value, and R2 of the model run on the centered variable - which will be the same as the uncentered version, and which will change?
-
+# let's center the hp variable, so that we can interpret the intercept as the mpg of a car of average weight, 
+#as opposed to the mpg of a car of weight=0 
+# Q: what do you predict about the intercept, slope, p value, and R2 of the model run on the centered variable - 
+#which will be the same as the uncentered version, and which will change?
+#intercept will change, others will stay the same
 # just as a baseline, let's run the univariate model on the original hp variable, and plot it
 car_mod3 <- lm(mpg ~ hp, data = mtcars)
 summary(car_mod3)
@@ -722,10 +750,12 @@ ggplot(mtcars, aes(x = hp, y = mpg)) +
     geom_point()
 
 # now let's try centering (but not standardizing) the variable hp
-mtcars$hp_centered = scale(mtcars$hp, center=TRUE, scale=FALSE) # center=true subtracts the mean from all data values, scale=true divides all data values by the sd 
+mtcars$hp_centered = scale(mtcars$hp, center=TRUE, scale=FALSE) 
+# center=true subtracts the mean from all data values, scale=true divides all data values by the sd 
 car_mod4 = lm(mpg ~ hp_centered, data = mtcars)
 summary(car_mod4)
 # Q: were you right in your predictions above?
+#yes, the intercept changed, while the slope, and r-squared value stayed the same
 
 # let's try plotting the data points with the model fit added to the plot
 ggplot(mtcars, aes(x = hp_centered, y = mpg)) + 
@@ -738,22 +768,29 @@ ggplot(mtcars, aes(x = hp_centered, y = mpg)) +
 # so x axis tick marks are now in units of standard deviations
 # this is also called a z score
 # Q: what are the units of a z score? why? how does this make a z score particularly useful (or not)?
-# Q: what do you predict about the intercept slope, p value,  and R2 of the model run on the standardized variable - will they all be the same as the unstandardized version?
+#standard deviations
+# Q: what do you predict about the intercept slope, p value,  and R2 of the model run on the standardized variable - 
+#will they all be the same as the unstandardized version?
+#all will change
 
 mtcars$hp_standardized = scale(mtcars$hp, center=TRUE, scale=TRUE) 
 car_mod5 = lm(mpg ~ hp_standardized, data = mtcars)
 summary(car_mod5)
 # Q: were you right in your predictions above?
+#Partially- The slope and y-intercept changed, but the p-values and r2 values stayed the same
 
 # plotting the data points for the standardized variable, with the model fit added to the plot
 # write code to plot this below
 
-
-
+ggplot(mtcars, aes(x = hp_standardized, y = mpg)) + 
+    geom_point() + 
+    geom_abline(intercept = coef(car_mod5)[1], slope = coef(car_mod5)[2]) + 
+    geom_vline(xintercept = 0, linetype="dashed")
 
 
 # say we want to standardize both variables (x and y), i.e., do the entire analysis in terms of z scores
-# clearly now the slope and intercept will both be different because the y axis values have changed, but the R2 and significance should be the same
+# clearly now the slope and intercept will both be different because the y axis values have changed, 
+#but the R2 and significance should be the same
 
 mtcars$hp_z = scale(mtcars$hp, center = TRUE, scale = TRUE) 
 mtcars$mpg_z = scale(mtcars$mpg, center = TRUE, scale = TRUE)
@@ -761,7 +798,9 @@ car_mod6 = lm(mpg_z ~ hp_z, data = mtcars)
 summary(car_mod6)
 
 # Q: what is the value of the intercept?  why is the p value for the intercept what it is?
+#-3.149e-17, p-value is 1 because this intercept is not significantly greater than zero
 # Q: how do the overall R2, F, and p value compare to the original (uncentered) version of the model?
+#overall F, R2, and p-value are the same as the original model
 
 # take a look at this model
 ggplot(mtcars, aes(x = hp_z, y = mpg_z)) + 
@@ -774,43 +813,73 @@ ggplot(mtcars, aes(x = hp_z, y = mpg_z)) +
 
 # write code to do that below
 
+mtcars$wt_z = scale(mtcars$wt, center=TRUE, scale=TRUE)
 
+car_mod7 <- lm(mpg_z ~ hp_z + wt_z, data=mtcars)
 
-
+summary(car_mod7)
 
 # Q: how do the slopes of both hp and hp compare to the original (uncentered) version?
-# Q: what can you conclude about comparing slopes between variables when variables are expressed in their original units, versus expressed as z scores? 
-
+#slopes of hp and wt are closer together than in the original version (there is less of a difference between them)
+# Q: what can you conclude about comparing slopes between variables when variables are expressed in their original units, 
+#versus expressed as z scores? 
+#z-scores give us a standardized unit that allows for a direct comparison, whereas the orignal units of variables may be 
+#difficult to interpret and compare
 
 
 ## EXERCISE 1
-# goal of this is to build your intuition about the relationship between sample size, p value, and effect size, which in this case is r
+# goal of this is to build your intuition about the relationship between sample size, p value, and effect size, 
+#which in this case is r
 # first create two vectors, one for x values and one for y values
 # runif_x randomly samples 10 values from a uniform distribution with min = 0 and max = 100
 unif_x <- runif(10, 0, 100)
 # complete the code in unif_y so that it does the same thing
 # write code below to create random y values the same way
-######  delete code below #######
 unif_y <- runif(10, 0, 100)
+
 # these numbers should not be correlated except by chance
 plot(unif_x, unif_y)
 cor(unif_x, unif_y)
 cor.test(unif_x, unif_y)
-# run the code above repeatedly until you get a significant positive correlation and/or r >= 0.60, which is a rule of thumb for a 'reasonably strong' correlation
-# Q: how many tries did it take?  
+# run the code above repeatedly until you get a significant positive correlation 
+#and/or r >= 0.60, which is a rule of thumb for a 'reasonably strong' correlation
+# Q: how many tries did it take?
+#The 1st try gave me 0.66 for r, and a p-value of 0.038
 # Q: what do you predict will happen if you repeat the exercise with sampling only 5 values? 100 values?
-# Q: try it and see. suggestion:  don't spend too long on the n=100 version  
-# Q: explain what you think is going on here, in terms of sample size (n), effect size (r), p value, and the relationship among them
+#I predict 5 values would increase the likelihood of significant positive correlations, 100 values would have less outputs of 
+#significant positive correlations
+# Q: try it and see. suggestion:  don't spend too long on the n=100 version 
+unif_x5 <- runif(5, 0, 100)
+unif_y5 <- runif(5, 0, 100)
+cor(unif_x5, unif_y5)
+cor.test(unif_x5, unif_y5)
+
+unif_x100 <- runif(100, 0, 100)
+unif_y100 <- runif(100, 0, 100)
+cor(unif_x100, unif_y100)
+cor.test(unif_x100, unif_y100)
+
+#the r value for correlation lower among trials with 100 values than it is for trials with 5 values, but the p-value
+#is significant for trials with 100 values, despite having a low effect size (r)
+
+# Q: explain what you think is going on here, in terms of sample size (n), effect size (r), p value, 
+#and the relationship among them
+#as the sample size increases, there is a greater chance that statistical tests will yield a significant p-value
+#even if the effect size is not high
+#data with smaller sample sizes will need to have a higher effect size to yield a significant p-value than data with
+#larger sample sizes do
 
 
 
 
 ## EXERCISE 2
-# the goal of this exercise is to develop your intuition about why the the sampling distribution of the mean (ie, the standard error) is what it is, and why the central limit theorem works
+# the goal of this exercise is to develop your intuition about why the the sampling distribution of the mean 
+#(ie, the standard error) is what it is, and why the central limit theorem works
 
 # part one
 # on what the standard error is
-# first let's plot a distribution of data for a standard normal distribution, just to compare it to the distribution of means later
+# first let's plot a distribution of data for a standard normal distribution, 
+#just to compare it to the distribution of means later
 hist(rnorm(1000), xlim = c(-3,3), breaks = 30, main = 'distribution of data')
 
 # then let's take a bunch of samples from a normal distribution and see how the means of these samples are distributed
@@ -825,6 +894,14 @@ means <- function(sample_size, number_samples) {            # defines the functi
 }
 means(50, 1000)  # this takes 1000 samples of 50 data points each from a normal distribution with mean = 0 and standard deviation = 1
 
+means <- function(sample_size, number_samples) {            
+    output <- vector("double", length = number_samples)    
+    for(i in 1:number_samples) {                       
+        g <- rnorm(sample_size)                            
+        output[[i]] <- (mean(g))
+    }
+    hist(output, breaks = 30, xlim = c(-3,3), main = 'distribution of means')
+}
 # Q: how is the distribution of the means different from the distribution of the data?
 # Q: was this what you expected? why or why not?
 # Q: what do you predict will be the effect of increasing sample_size?  ie, how will the histogram change
