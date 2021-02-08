@@ -374,38 +374,47 @@ ggplot(output, aes(x = Species, y = mean)) +
 # you can check that you got the right numbers by comparing the means in your plots, to means you calculate from the data
 # Q: write code to do this below
 
-
+sp <- group_by(iris, Species)
+summarize(sp, meanSW = mean(Sepal.Width))
+#versicolor has a mean of 2.77- matches plot
+#virginica has a mean of 2.97- matches plot
+#setosa has a mean of 3.43- matches plot
 
 
 # the traditional stars and letters indicating significance in anova are easier to add in keynote/powerpoint than in R, so we won't do that here
 # okay, let's finally finish this analysis!
 # Q: what is your conclusion about the answer to our anova question? state it in terms of the biology and also include your key statistical result(s)
+#Irises of different species do have different sepal widths. We conclude this based on an F-statistic of 49 and a p-value less than 0.05.
 # Q: why do the graphical results of the modelfit (ie, the plot you just made above) look so much more significant than the picture you did at the start (the data and boxplots)?
-
+#the plots at the beginning looked at medians and quartiles, while the modelfit plot shows mean and 95% CI
 
 
 ## TWO WAY ANOVA
 # our two-way anova question: do flower color and/or size predict the number of insect visits?
 
 # load the data set FlowerColourVisits.csv
-flowers <- read_csv("FlowerColourVisits.csv")  # substitute your own file path here
+flowers <- read_csv("3_FlowerColourVisits.csv")  # substitute your own file path here
 # look at the flowers data in the spreadsheet
 glimpse(flowers)
 # oops, 'size' and 'colour' should be factors, but they aren't coded that way
 # write code below to change the variable type to factor for these two variables
-
-
+flowers$size <- factor(flowers$size)
+class(flowers$size) #factor
+flowers$colour <- factor(flowers$colour)
+class(flowers$colour) #factor
+glimpse(flowers) #size and colour listed as factors
 
 
 # full disclosure: the flower sizes are made up for the purposes of making an interaction plot.  all the other data used in class exercises are real
 glimpse(flowers)
 # it's a good idea to know what your levels are, for a factor variable
 # write code below to check the levels
-
+levels(flowers$size) #levels are large, medium, and small
+levels(flowers$colour) #levels are orange, red, white, and yellow
 
 
 # Q: for each variable, which level will R use as the reference level? 
-
+#R orders levels alphabetically- will use "large" as the ref level for size and "orange" as the ref level for colour
 
 # first, data pictures
 ggplot(flowers, aes(x = size, y = number.of.visits, color = colour)) +
@@ -427,7 +436,8 @@ sum_flowers <- flowers %>%
     group_by(colour, size) %>%   # this line creates the 4x3  possible groups
     summarize(meanV = mean(number.of.visits) )   # this line creates a new variable meanV that is the mean number of visits per group
 sum_flowers
-# we want to connect the means for flowers of the same size, to see how the number of visits changes with flower color when size is held constant
+# we want to connect the means for flowers of the same size, to see how the number of visits changes with flower color when 
+#size is held constant
 # to do this, within aes() we define the 'group' that we want lines to connect (here, group = size)
 # then geom_line will connect the dots within each group
 # we will also make the groups different colors (color = size), so that things are easier to see
@@ -466,28 +476,38 @@ ggplot(data=flowers_groups, aes(x=number.of.visits)) +
 # fourth, interpret results 
 # first though, a Warning! 
 # R's default anova() function in rstats, which we have used thus far, should not be used for two-way anova
-# the reason is, it uses type I sum of squares, which means that your results can change depending on the order in which you enter your predictor variables in the model
-# we will use library(car)'s Anova(), which allows you to specify that you want type III sum of squares, for which the order of variable entry will not matter
+# the reason is, it uses type I sum of squares, which means that your results can change depending on the order 
+#in which you enter your predictor variables in the model
+# we will use library(car)'s Anova(), which allows you to specify that you want type III sum of squares, 
+#for which the order of variable entry will not matter
 Anova(flowers_anova, type=3)
 # Q: how similar are the results to what you predicted at the start?
 # but - where is our overall F and p value for the whole test ?!
 # actually, you usually don't get one in two-way anova
 # that's because 2-way anova is usually interpreted differently from a multiple regression model
 # the F-test in the regression model is asking whether the full model is significantly better than the intercept-only model  
-# this is useful because in regression you are generally interested in finding the most parsimonious model; therefore predictors are evaluated in a cost-benefit context, as in AIC
-# in contrast, more usually in anova, the goal is to determine which predictors have levels that are different from each other, rather than building the most parsimonious model
+# this is useful because in regression you are generally interested in finding the most parsimonious model; 
+#therefore predictors are evaluated in a cost-benefit context, as in AIC
+# in contrast, more usually in anova, the goal is to determine which predictors have levels that are 
+#different from each other, rather than building the most parsimonious model
 # thus there is an F-test for each factor, but usually not an overall F
-# that said, if you wanted a whole model F you could get it by adding up the MS for all the factors and dividing by MSerror (ie, MS residuals)
+# that said, if you wanted a whole model F you could get it by adding up the MS for all the factors and 
+#dividing by MSerror (ie, MS residuals)
 # this works because variance is additive, ie, you can add it (whereas you can't add sd for instance)
-# lastly, remember that when there is an interaction in two-way anova, you shouldn't interpret the main effects separately from the interaction
+# lastly, remember that when there is an interaction in two-way anova, you shouldn't interpret the main effects 
+#separately from the interaction
 
 # fifth, plot model results back onto the data picture
-# because this is anova, we can't use tidyverse 'augment'; we have to use base R 'predict' to get the relevant means and se for the model fit
+# because this is anova, we can't use tidyverse 'augment'; we have to use base R 'predict' to get the relevant means 
+#and se for the model fit
 # we define newdata as a df with one row per level of the 2-way anova
 # R will recognize this as making one prediction per level (as opposed to one prediction per data point, as for regression)
 # also have to create a dataframe to hold the mean and se output that predict returns
-flowers_mean_se = predict(flowers_anova, se=T, newdata=data.frame(colour=rep(c("orange", "red", "white", "yellow"),3), size=c(rep("large",4), rep("medium",4),rep("small",4) )) )
-# the mean is returned by default (to see it, check flowers_mean_se$fit), se you have to specify with =T (check flowers_mean_se$se.fit)
+flowers_mean_se = predict(flowers_anova, se=T, 
+                          newdata=data.frame(colour=rep(c("orange", "red", "white", "yellow"),3), size=c(rep("large",4), 
+                                                                                                         rep("medium",4),rep("small",4) )) )
+# the mean is returned by default (to see it, check flowers_mean_se$fit), se you have to specify 
+#with =T (check flowers_mean_se$se.fit)
 output= data.frame(
     colour=rep(c("orange", "red", "white", "yellow"),3),
     size=c(rep("large",4), rep("medium",4),rep("small",4) ),
@@ -506,8 +526,6 @@ ggplot(output, aes(x = colour, y = mean, color=size, group=size)) +  # group def
 # Q: state your conclusion from this analysis 
 
 
-
-
 ## MULTIPLE REGRESSION
 # our multiple regression question: do car weight and horsepower predict mpg?
 
@@ -520,14 +538,17 @@ ggplot(mtcars, aes(x = wt, y = mpg)) +
     geom_point()
 # write code below to look at mpg versus hp
 # and also wt versus hp, to check whether the predictors are correlated
+ggplot(mtcars, aes(x=hp, y=mpg)) +
+    geom_point()
 
-
-
+ggplot(mtcars, aes(x=hp, y=wt)) +
+    geom_point()
 
 # here is another fun picture activity you can do, wrt multiple regression
 # you can plot the second variable against the residuals of the first variable
 # this is a bit like what multiple regression is, in fact, doing
-# doing it manually lets you see the relative effect of the two variables separately, which should match up with your eventual multiple regression results
+# doing it manually lets you see the relative effect of the two variables separately, 
+#which should match up with your eventual multiple regression results
 # first, re run the univariate regression if it is no longer in R's memory
 car_mod <- lm (mpg ~ wt, data = mtcars)
 # then add the residuals from this model as a new column
@@ -540,7 +561,6 @@ ggplot(mtcars, aes(x = hp, y = car_mod_resid)) +
 summary(lm (car_mod_resid ~ hp, data = mtcars))
 
 
-
 # second, run multiple regression model
 car_mod2 <- lm(mpg ~ wt + hp, data=mtcars)
 
@@ -548,8 +568,13 @@ car_mod2 <- lm(mpg ~ wt + hp, data=mtcars)
 hist(car_mod2$residuals)
 plot(car_mod2)
 # Q: for each plot, write down what you would conclude
+#residuals vs. fitted looks okay- points evenly scattered, points generally follow the line in the Normal QQ plot so normality 
+#appears okay, scale-location plot shows points evenly scattered so looks okay, residuals vs. leverage shows most points at low leverage
+#so okay
 # reminder, the rule of thumb is, Cook's D = 1 indicates a potentially too influential datapoint
-# in practice one can just test influence empirically: re run the analysis without a potentially influential data point, and if the overall answer changes, you don't put much faith in your results because they rely on one data point
+# in practice one can just test influence empirically: re run the analysis without a potentially influential data point, 
+#and if the overall answer changes, you don't put much faith in your results because they rely on one data point
+
 # for multiple regression, also very important to check for multicollinearity
 # first have a look at correlation of the two predictors
 cor(mtcars$wt, mtcars$hp)
@@ -566,9 +591,8 @@ vif(car_mod2)
 
 # fourth, interpret results
 # write code below to get your results
-
-
-
+summary(car_mod2)
+coef(car_mod2) #to get coefficients
 
 # note that for multiple regression, you get both a whole model R-squared and a whole model adjusted R-squared
 # it is better to use the adjusted one, which adjusts for the number of predictor variables in the model
@@ -583,7 +607,8 @@ plot3d <-scatterplot3d(mtcars$wt,mtcars$hp,mtcars$mpg, pch=16, type="p")  # type
 plot3d$plane3d(car_mod2)  # this syntax seems a little weird, but what's it's saying is, add a 3d plane representing the fit of car_mod2, to the existing plot 'plot3d'
 
 # Q: Go back to the question that motivated the analysis and answer it, using the model coefficients (ie, your results) in your answer.
-# remember that once you have more than one predictor variable (multiple regression, ancova, etc), when you interpret the results for any one variable you need to add 'while holding (the other variable(s)) constant'
+# remember that once you have more than one predictor variable (multiple regression, ancova, etc), when you 
+#interpret the results for any one variable you need to add 'while holding (the other variable(s)) constant'
 
 
 
