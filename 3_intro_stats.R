@@ -894,32 +894,44 @@ means <- function(sample_size, number_samples) {            # defines the functi
 }
 means(50, 1000)  # this takes 1000 samples of 50 data points each from a normal distribution with mean = 0 and standard deviation = 1
 
-means <- function(sample_size, number_samples) {            
-    output <- vector("double", length = number_samples)    
-    for(i in 1:number_samples) {                       
-        g <- rnorm(sample_size)                            
-        output[[i]] <- (mean(g))
-    }
-    hist(output, breaks = 30, xlim = c(-3,3), main = 'distribution of means')
-}
+
 # Q: how is the distribution of the means different from the distribution of the data?
+#It's much skinnier and has a narrower distribution
 # Q: was this what you expected? why or why not?
+#I thought it would be a little wider as the sample size seems fairly high
 # Q: what do you predict will be the effect of increasing sample_size?  ie, how will the histogram change
+#Narrower distribution
 # Q: what do you predict will be the effect of increasing number_samples?  ie, how will the histogram change
+#Narrower distribution
 # now test your predictions:
 # Q: first run means() with sample_size = 5, then = 50, then = 500, both times using number_samples = 10000
+means(5, 10000) #Widest distribution
+means(50, 10000)
+means(500, 10000) #Narrowest distribution
 # Q: then run means() with sample_size = 50 and number_samples = 10, then number_samples = 1000, then = 10,000
+means(50, 10)  #Not enough samples to get a smooth distribution
+means(50, 1000) 
+means(50, 10000)
 # Q: were your predictions right?  why or why not?
-# note that this picture shows the situation you are in when you are estimating the true mean of a population based on a sample of one mean taken from that population
-# in that case, you have ONE of the sample means that are plotted here, and are trying to choose CI around your mean that are likely to include the true mean (which is 0 in this case)
-# Q: what equation would you use for the CI?
+#Partially, increasing the sample size did result in a narrower distribution, but increasing the number of samples 
+#did not (the distributions were equally spread out when I changed the number of samples)
 
+# note that this picture shows the situation you are in when you are estimating the true mean of a 
+#population based on a sample of one mean taken from that population
+# in that case, you have ONE of the sample means that are plotted here, and are trying to choose CI 
+#around your mean that are likely to include the true mean (which is 0 in this case)
+# Q: what equation would you use for the CI?
+#prediction interval?
 
 # part two, on the central limit theorem
 # Q: what is the CLT?  that is, what does it say
+#distribution of sample means will be about normally distributed if large random samples are taken
 # Q: what do you predict will happen when we change the distribution to a uniform one? 
+#look about normal
 # Q: try it with the code below and see
-# Q: any thoughts about why the distribution of means is normal even if the values going into the means come from a distribution that is not at all normal?
+# Q: any thoughts about why the distribution of means is normal even if the values 
+#going into the means come from a distribution that is not at all normal?
+#sample size is large enough
 # there is a hint below if you need it
 
 # distribution of data for uniform distribution
@@ -936,10 +948,13 @@ means <- function(sample_size, number_samples) {            # defines the functi
 means(50, 1000)
 
 # because runif is defined from 0 to 1, the mean is 0.5
-# if you aren't sure why the distribution of means ends up normal even for a uniform distribution, draw this picture for yourself on a piece of paper:
+# if you aren't sure why the distribution of means ends up normal even for a uniform distribution, 
+#draw this picture for yourself on a piece of paper:
 # both axes are equally likely values in a uniform distribution, eg 1,2,3,4,5,6,7,8
 # cell values are the sum of the two axes
-# this is a picture of what you are doing when you draw sample sizes of 2 from a uniform distribution and then take the mean (well, it's the sum actually, but the distribution will be the same because the mean is just the sum divided by a constant)
+# this is a picture of what you are doing when you draw sample sizes of 2 from a uniform distribution and 
+#then take the mean (well, it's the sum actually, but the distribution will be the same because the mean is just 
+#the sum divided by a constant)
 # ask yourself what the distribution of the cell values will look like and why
 
 
