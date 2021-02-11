@@ -47,7 +47,7 @@ hist(bern.draws)
 
 # If we visit 10 sites, or draw 10 candies, the number of "successes" (i.e. occupied sites or blue candies) is a binomial process.
 # Repeated draws of 10 will yield a binomial distribution:
-binom.draws <- rbinom(10000, 10, 0.2) # 10000 observations of 10 trials
+binom.draws <- rbinom(10000, 10, 0.2) # 10000 observations of 10 trials (every observation is 10 coin flips)
 hist(binom.draws)
 # Note that the observed distribution of a binomial looks very different than the Bernoulli.
 # A Bernoulli process can have only 2 outcomes,
@@ -78,6 +78,7 @@ plot(p, L)
 # As with the histogram above, we see that a value of .1 or .3 is not unreasonable but, graphically,
 # 0.2 is the 'maximum likelihood estimate.' (For a binomial, we also know that the MLE is simply k/n: 2/10 = 0.2.)
 # In the case of species occupancy, if 2 of our 10 sites were occupied, how confident are we in this MLE of 0.2?
+#We are very confident in this MLE of 0.2
 
 # Calculating confidence intervals on an MLE is related to the likelihood ratio test for nested models.
 # We'll get a little deeper into how the likelihood ratio test works later. For now,
@@ -121,8 +122,14 @@ chi <- chi.binom(p.test, 2, 10)
 #        and add a horizontal line at the critical value of the test statistic.
 #        (Hint: the function abline() can add lines to plots)
 #     b) Using your plot from (a), estimate the 95% CI for p. How did you get that estimate?
+#a)
+plot(p.test, chi)
+abline(h=3.84)
 
-## ~ [ YOU'RE CODE HERE ] ~ ##
+#b)
+#Estimate: 0.15-0.40
+#We are looking for the values of our parameter, that give us a chi-squared test statistic of 1.92, and from our
+#graph, this looks like about 0.15-0.40. 
 
 # Now find out if you were right:
 # For an approximation of the CI, what values above and below 0.2 are closest to 1.92?
@@ -137,7 +144,7 @@ abline(v = ci.max, lty = 2)
 ci.min
 ci.max
 
-# Going back to our liklihood profile:
+# Going back to our likelihood profile:
 plot(p, L, type = 'l')
 abline(v = ci.min, lty = 2)
 abline(v = ci.max, lty = 2)
@@ -161,6 +168,11 @@ abline(v = ci.max2, lty = 2)
 #     b) Plot the likelihood profile and 95% CIs for the proportion of sites occupied,
 #         based on the observation of 20 of 100 sites occupied
 
+#a)
+ci.min2 #0.149
+ci.max2 #0.259
+
+#b)
 L2 <- dbinom(20, 100, p.test)
 plot(p.test, L2, type = 'l')
 # CIs:
@@ -231,9 +243,9 @@ fm2 <- lm(y ~ x1 + x2)
 fm3 <- lm(y ~ x1*x2)
 
 # Now check out the R2 as parameters are added (though check the multiple, not the adjusted R2):
-summary(fm1)
-summary(fm2)
-summary(fm3)
+summary(fm1) #0.4284
+summary(fm2) #0.4681
+summary(fm3) #0.8103
 
 # Similarly, look how the likelihood increases:
 logLik(fm0)
@@ -337,7 +349,7 @@ lines(seq(.1,15,.1), dchisq(seq(.1,15,.1), 3), col = 'red', lwd = 2)
 # the likelihoood ratio test allows you to do that, *for nested models.*
 
 
-# Q4: a) Desribe the difference between these three distributions
+# Q4: a) Describe the difference between these three distributions
 #     b) Not thinking about the underlying mathematics of the chi-square function,
 #       but thinking about the likelihood ratio test,
 #       why does the test distribution behave as it does with more degrees of freedom?
@@ -384,9 +396,9 @@ glimpse(titanic)
 # (see ?titanic_train for explanations of variables)
 # (note that the only real difference from the lm() function is the added 'family' argument. Keep this mind for a little later on.)
 
-fm0 <- glm(Survived ~ , family = "binomial", data = titanic)
-fm1 <- glm(Survived ~ , family = "binomial", data = titanic)
-fm2 <- glm(Survived ~ , family = "binomial", data = titanic)
+fm0 <- glm(Survived ~ 1, family = "binomial", data = titanic)
+fm1 <- glm(Survived ~ Sex, family = "binomial", data = titanic)
+fm2 <- glm(Survived ~ Sex + Age, family = "binomial", data = titanic)
 
 # We can look at the likelihood ratios of these models,
 # and test for significance, using the lrtest() function from the lmtest package.
@@ -414,7 +426,10 @@ lrtest(fm0, fm1, fm2)
 # Think carefully about each model:
 # Do each of these deserve to be in a model with each other? Is there reason to think some variables might interact?
 
-## ~ [ YOU'RE CODE HERE ] ~ ##
+titanic0 <- glm(Survived ~ 1, family = "binomial", data = titanic)
+titanic1 <- glm(Survived ~ Pclass, family = "binomial", data = titanic)
+titanic2 <- glm(Survived ~ Age, family = "binomial", data = titanic)
+titanic3 <- glm(Survived ~ Pclass + Age, family = "binomial", data = titanic)
 
 # Q8: How do you know these models are not nested?
 
@@ -422,6 +437,7 @@ lrtest(fm0, fm1, fm2)
 # Compare these models using the model.sel() function from the MuMIn package:
 ?model.sel
 
+model.sel(titanic0, titanic1, titanic2, titanic3)
 
 # This function provides the 'second-order' AICc criterion, which is adjusted for bias under small sample sizes,
 # as well as likelihoods, effects, 'delta-AIC,' and model weights.

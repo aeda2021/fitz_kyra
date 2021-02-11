@@ -1,0 +1,64 @@
+4_Likelihood Answers
+Kyra Fitz
+
+
+Q1:
+I expect a plot of the test statistic as a function of p, to show a low chi-square
+statistic at p=0.2, with the chi-square statistic getting progressively higher as we move
+away from p=0.2. So, p=0.9, the chi-square statistic would be much higher.
+
+Q2:
+a) plot(p.test, chi)
+abline(h=3.84)
+
+b) Estimate: 0.15-0.40
+We are looking for the values of our parameter, that give us a chi-squared test statistic of 1.92, and from our
+graph, this looks like about 0.15-0.40. 
+
+Q3:
+a) The 95% confidence interval is 0.149 to 0.259.
+
+b) L2 <- dbinom(20, 100, p.test)
+plot(p.test, L2, type = 'l')
+abline(v = .149, lty = 2)
+abline(v = .259, lty = 2)
+
+Q4:
+a) The 1st distribution shows the vast majority of the function under an R value of 5, and the most of the function is under
+R value of 1. As predictors and thus degrees of freedom are added, the distribution widens, and by 3 predictors, the most of the 
+distribution is under an R value of 10, rather than 5 like in the 1st distribution.
+
+b) Adding more variables/predictors allows the model to explain more of the variance present in the data. Looking at the equation for 
+the Likelihood ratio test, when we have more degrees of freedom, there will be a bigger difference between the log likelihoods of the models,
+and thus the overall R calculated will be greater. 
+
+Q5:
+A p-value for the likelihood ratio test tells us the threshold of whether to reject our null hypothesis that the parameters are not improving our model fit better than we expect due to chance. A p-value of less than 0.05 (chi-squared greater than 3.84) tells us that our parameters are improving model fit more than we would expect due to random chance.
+significance here means that the difference in models is more than we would expect
+# due to chance, under the null hypothesis that there is no difference in the models.
+
+Q6:
+a) The Chi-squared of 213.8 and the corresponding value of <2e-16 refers to the difference in the log likelihoods between Models 2 and 1 
+(the intercept-only model and the model using sex as a predictor for survival). The Chi-squared statistic of 0.7433 and its corresponding 
+p-value of 0.3886 refers to the difference in the log likelihoods between Models 3 and 2 (the model using both sex and age as a predictor 
+for survival and the model using age as a predictor for survival). 
+
+b) Our null hypothesis is that there is no difference in the models.
+
+c) Sex offers significant predictive power in predicting survival. With a p-value less than 2e-16, the difference between models is more
+than we would expect due to chance.
+
+Q8:
+We know these models are not tested because two of our models have the same number of variables/predictors.
+
+Q9:
+Delta-AIC is the difference in information lost between two models. As we are looking at model comparison, not model fit, we need to be 
+looking at the difference in AIC values to interpret how our models perform in comparison to each other. We cannot look at one AIC value 
+and tell whether it is "good" or not.
+
+Q10:
+The model using passenger class and age variables was our best model, and our model using only passenger class as a variable waas our 
+second best model. It appears the combination of passenger class and age are our most important variables.
+
+
+
