@@ -470,8 +470,11 @@ summary(dat.test)
 # It will also give you the likelihood and a couple information criteria.
 # To compare, you want a higher likelihood, but a lower information criterion.
 
-## ~ [ YOU'RE CODE HERE ] ~ ##
+fit_poisson <- fitdist(dat.test,"pois", method="mle")
+summary(fit_poisson)
 
+fit_negbinom <- fitdist(dat.test, "nbinom", method="mle")
+summary(fit_negbinom)
 
 
 # Q11: a) Which distribution is the best?
@@ -538,7 +541,7 @@ summary(dat.test)
 # I've put the code for this in a separate file.
 # To bring in the datasets, run the following:
 
-source("data_sim.R") # this runs the code in the 'data_sim.R' file;
+source("4_dataSimulation.R") # this runs the code in the 'data_sim.R' file;
                      # this filepath assumes that you put data_sim.R in your working directory.
 
 # In this data simulation, I create two sets of of 12 environmental variables.
