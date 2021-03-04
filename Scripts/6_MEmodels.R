@@ -47,7 +47,7 @@ Bees$sBeesN <- scale(Bees$BeesN)
 
 
 # Make a Cleveland dot-chart of spores vs. hive
-dotchart(Bees$Spobee, groups = Bees$fhive, xlab='Spores', ylab='Hive ID')
+dotchart(Bees$Spobee, groups = Bees$fhive, xlab='Spores', ylab='Hive ID')  #saved as "6_SporesHive.jpeg"
 
 
 # Q1. Does variance of spore density appear homogenous among hives? Why or why not?
@@ -79,7 +79,7 @@ Spobee <- Bees$Spobee
 mod_simple <- lm(spobee_log ~ fInfection01 + sBeesN + sBeesN*fInfection01, data=Bees) #error using the log transformed data
 
 mod_simple_resid <- residuals(mod_simple, type='pearson')
-plot(Bees$fhive, residuals)
+plot(Bees$fhive, mod_simple_resid)   #saved as "6_SimpleModResiduals.jpeg" 
 summary(mod_simple)
 
 #The resiudals do not look homogenous among hives, indicating this is not a good model for our data.
@@ -97,7 +97,7 @@ summary(mod_simple)
 
 # Q5. Step 3. Choose a variance structure or structures (the random effects). What random effects do you want to try?
 
-#Try hive as a random effect to start
+#Try hive as a random effect to start.
 
 # We will now fit a mixed effects (ME) model. Zuur et al. used the nlme package in R, but Douglas Bates now has a newer package that is 
 #widely used and that is called lme4. The benefits of lme4 include greater flexibility in the structure of the random effects, 
@@ -140,13 +140,12 @@ anova(mod_me1, mod_me2, mod_simple)
 #(You can get standardized residuals with residuals(yourmodel, type='pearson')). How do they look?
 
 mod_me1_resid <- residuals(mod_me1, type='pearson')
-mod_me2_resid <- residuals(mod_me2, type='pearson')
 
 summary(mod_me1)
 
-plot(fitted.values(mod_me1), mod_me1_resid)
-plot(fInfection01, mod_me1_resid)
-plot(sBeesN, mod_me1_resid)
+plot(fitted.values(mod_me1), mod_me1_resid)  #Saved as "6_FullModFittedValuesResiduals.jpeg"
+plot(fInfection01, mod_me1_resid, xlab="fInfection01", ylab="Residuals")  #Saved as "6_FullModInfectionResiduals.jpeg"
+plot(sBeesN, mod_me1_resid)                  #Saved as "6_FullModBeesResiduals.jpeg"
 
 
 # Q9. Step 7. Re-fit the full model with ML (set REML=FALSE) and compare against a reduced model without the interaction term, 
@@ -182,9 +181,10 @@ mod_final <- lmer(spobee_log ~ fInfection01 + sBeesN + (1|fhive), data=Bees, REM
 
 mod_final_resid <- residuals(mod_final, type='pearson')
 
-plot(fitted.values(mod_final), mod_final_resid)
-plot(fInfection01, mod_final_resid)
-plot(sBeesN, mod_final_resid)
+hist(mod_final_resid)                            #Saved as "6_FinalModResidualsHist.jpeg"
+plot(fitted.values(mod_final), mod_final_resid)  #Saved as "6_FinalModFittedValuesResiduals.jpeg"
+plot(fInfection01, mod_final_resid, xlab="fInfection01", ylab="Residuals")  #Saved as "6_FinalModInfectionResiduals.jpeg"
+plot(sBeesN, mod_final_resid)                    #Saved as "6_FinalModBeesResiduals.jpeg"
 
 #The residuals appear appropriately distributed.
 
@@ -192,10 +192,20 @@ plot(sBeesN, mod_final_resid)
 
 summary(mod_final)
 
-
+#The model tells us that when infection is present, the log of the bacterium spore density increases by 6. It also tells us that 
+#the density of bees is multiplied by a factor of -0.7778, meaning that as the number of bees increases, the log of the bacterium spore 
+#density will decrease at a rate of -0.7778. In summary, hives infected with American Foulbroud will have a higher density of spores
+#than hives not infected, and hives with lower numbers of bees will have higher densities of P. larvae spores than hives with 
+#higher numbers of bees. 
 
 # Q13. Calculate the correlation between observations from the same hive as 
 #variance(fhive random effect)/(variance(fhive random effect) + variance(residual)). Given the correlation among observations from 
 #the same hive, do you think it's a good use of time to sample each hive multiple times? Why or why not?
+
+4.8222/(4.8222 + 0.6033)  #correlation= 0.889
+
+#As the correlation among observations from the same hive is very high and close to 1, I don't think it's a good use of time to 
+#sample each hive multiple times. The results from sampling the same hive multiple times are likely to be very similar with this
+#high of a correlation, so our time is best spent elsewhere.
 
 
