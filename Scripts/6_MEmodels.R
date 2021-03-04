@@ -147,6 +147,8 @@ plot(fitted.values(mod_me1), mod_me1_resid)  #Saved as "6_FullModFittedValuesRes
 plot(fInfection01, mod_me1_resid, xlab="fInfection01", ylab="Residuals")  #Saved as "6_FullModInfectionResiduals.jpeg"
 plot(sBeesN, mod_me1_resid)                  #Saved as "6_FullModBeesResiduals.jpeg"
 
+#Residuals could look better; they are not entirely equally distributed across the fitted values and each predictor. For example, 
+#the residuals are more variable for an fInfection value of 0 (no infection present) than they are for an fInfection value of 1.
 
 # Q9. Step 7. Re-fit the full model with ML (set REML=FALSE) and compare against a reduced model without the interaction term, 
 #also fit with ML. Use anova() to compare the models. Which model do you choose? Why?
@@ -186,7 +188,7 @@ plot(fitted.values(mod_final), mod_final_resid)  #Saved as "6_FinalModFittedValu
 plot(fInfection01, mod_final_resid, xlab="fInfection01", ylab="Residuals")  #Saved as "6_FinalModInfectionResiduals.jpeg"
 plot(sBeesN, mod_final_resid)                    #Saved as "6_FinalModBeesResiduals.jpeg"
 
-#The residuals appear appropriately distributed.
+#The residuals appear appropriately and fairly equally distributed.
 
 # Q12. Step 10. Interpret the model. The summary() command is useful here. What have you learned about American Foulbrood? 
 
