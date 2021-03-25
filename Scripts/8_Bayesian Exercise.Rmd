@@ -502,4 +502,4 @@ plotPost(plogis(fm.ticks.dat$b0), main = 'Probablity of Presence of EC at Mean F
 *Question* Interpret these results. What was EC occupancy (I.e. probability of a plot testing positive)? Was there evidence for an effect of any of these variables? What would your general conclusions be?
 
 *Answer:*
-The mean probability of a plot testing positive for EC was 0.279, with a 95% confidence interval of 0.141-0.424. The effects of forest area, edge, and type are all .......
+The mean probability of a plot testing positive for EC was 0.279, with a 95% confidence interval of 0.141-0.424. The it appears that forest area and edge have an effect on EC occupancy. As area and edge increase, there is a lower probability of a plot testing positive for EC (a lower EC occupancy). Forest type (evergreen proportion) does not appear to contribute to lower EC occupancy, and it does not seem like forest type has an effect on EC occupancy.
