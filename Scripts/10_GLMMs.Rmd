@@ -233,7 +233,7 @@ plotResiduals(res_glmm, koalas_st$pdens_1km)
 
 #### Q5: Evaluate the QQ plot, the residuals vs. predicted plot, the spline correlogram, and the residuals vs. explantory variables. Does anything concern you?
 
-The QQ plot looks good, and the points follow the red line nicely. The residuals vs. predicted plot has points spread out evenly, and looks appropriate. The correlogram looks better than before with only a glm. Each residuals vs. explanatory plots also appear to be evenly distributed and look okay. 
+The QQ plot looks good, and the points follow the red line nicely. The residuals vs. predicted plot has points spread out evenly, and looks appropriate. The correlogram looks better than before with only a glm, but there is now some negative autocorrelation at low distances. Each residuals vs. explanatory plots also appear to be evenly distributed and look okay. 
 
 
 ## Fit an alternative GLMM
